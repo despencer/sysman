@@ -17,8 +17,12 @@ REM getting parameters
 for /f "delims=" %%i in ('""%vboxmanage%" list systemproperties | findstr "machine folder""') do set vboxpath=%%i
 for /f "tokens=2,3 delims=:" %%a in ("%vboxpath%") do (set vboxpath=%%a:%%b)
 for /f "delims= " %%a in ("%vboxpath%") do (set vboxpath=%%a)
-
 echo VM default path: %vboxpath%
+
+for /f "tokens=2 delims=:" %%i in ('""%vboxmanage%" list bridgedifs | findstr "Name:""') do set vboxnetadapter=%%i & goto :donewithnet
+:donewithnet
+for /f "tokens=*" %%a in ("%vboxnetadapter%") do (set vboxnetadapter=%%~nxa)
+echo VM network adapter: '%vboxnetadapter%'
 
 REM checking parameters
 REM
@@ -67,7 +71,7 @@ echo [+] creating vm
 echo [+] configuring basic vm settings
 "%vboxmanage%" modifyvm %vm_name% --memory %vm_memory% --vram 64 --ioapic on --acpi on --chipset ich9 --largepages on --usb %vm_usb%> nul
 echo [+] configuring network
-"%vboxmanage%" modifyvm %vm_name% --nictype1 82540EM --nic1 bridged --bridgeadapter1 em1 > nul
+"%vboxmanage%" modifyvm %vm_name% --nictype1 82540EM --nic1 bridged --bridgeadapter1 "%vboxnetadapter%" > nul
 echo [+] configuring booting
 "%vboxmanage%" modifyvm %vm_name% --boot1 disk --boot2 dvd --boot3 none --boot4 none > nul
 echo [+] creating hdd
