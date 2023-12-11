@@ -41,7 +41,8 @@ shift
 SET vm_hdd=50000
 SET vm_memory=4096
 SET vm_ostype=ArchLinux_64
-SET vm_isopath="C:\home\distribs\linux\archlinux-2021.12.01-x86_64.iso"
+SET vm_isopath="C:\home\distribs\linux\archlinux.iso"
+SET vm_screenres = "1920x1080x32"
 SET vm_usb=off
 :getops
 if /I %~1 == --hdd (set vm_hdd=%2000& shift) else (
@@ -74,6 +75,8 @@ echo [+] configuring network
 "%vboxmanage%" modifyvm %vm_name% --nictype1 82540EM --nic1 bridged --bridgeadapter1 "%vboxnetadapter%" > nul
 echo [+] configuring booting
 "%vboxmanage%" modifyvm %vm_name% --boot1 disk --boot2 dvd --boot3 none --boot4 none > nul
+echo [+] configuring screen
+"%vboxmanage%" setextradata %vm_name% CustomVideoMode1 %vm_screenres% > nul
 echo [+] creating hdd
 "%vboxmanage%" createhd --filename %vboxpath%\%vm_name%\%vm_name%.vdi -size %vm_hdd% > nul
 echo [+] creating SATA
