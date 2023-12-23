@@ -1,4 +1,5 @@
 base
+arch-install-scripts
 # cloud-init
 # hyperv
 linux
@@ -9,5 +10,7 @@ mkinitcpio-archiso
 pv
 # qemu-guest-agent
 syslinux
-virtualbox-guest-utils-nox
+# virtualbox-guest-utils-nox
 mc
+reflector
+ntp
