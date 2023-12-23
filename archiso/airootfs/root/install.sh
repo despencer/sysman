@@ -1,5 +1,38 @@
-
 log="/var/log/install.log"
+NAME=''
+IP=''
+
+usage() {
+ echo "Usage: install.sh --name NAME --ip IP"
+ exit 1
+}
+
+get_options() {
+  opts=$(getopt --longoptions name:,ip: --name "install.sh" --options "" -- "$@")
+  if [ "$?" -ne 0 ]; then
+      usage
+  fi
+  eval set -- "$opts"
+
+  while [[ $# -gt 0 ]]; do
+     case "$1" in
+        --name) NAME=$2 ; shift 2 ;;
+        --ip) IP=$2 ; shift 2 ;;
+        --) shift ;;
+        *) echo "Internal error" ; exit 1 ;;
+     esac
+  done
+
+  if [[ "$NAME" == '' ]]; then
+    echo name is not provided
+    usage
+  fi
+
+  if [[ "$IP" == '' ]]; then
+    echo IP address is not provided
+    usage
+  fi
+}
 
 _start_log() {
  rm $log &> /dev/null
@@ -35,7 +68,9 @@ _run_inside() {
   _run_cmd "$1" "arch-chroot /mnt $2"
 }
 
+get_options $@
 _start_log
+_run_cmd "parameters $NAME $IP" 'echo name=$NAME ip=$IP'
 
 # checking internet availability
 _run_cmd "pinging" 'ping -c 1 archlinux.org'
@@ -49,7 +84,6 @@ if [ "$?" -eq 0 ]; then
   echo 'Disk already partitioned'
   exit 1
 fi
-_run_cmd "Checking partitions" 'sfdisk -d /dev/sda'
 _run_cmd "making partitions" 'echo -e ",0x800000,S\n,,L" | sfdisk /dev/sda'
 _run_cmd "making file system" 'mkfs.ext4 /dev/sda2'
 _run_cmd "mounting file system" 'mount /dev/sda2 /mnt'
