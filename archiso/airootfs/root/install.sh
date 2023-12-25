@@ -1,6 +1,8 @@
 log="/var/log/install.log"
 NAME=''
 IP=''
+USER='master'
+MNT='/mnt'
 
 usage() {
  echo "Usage: install.sh --name NAME --ip IP"
@@ -65,7 +67,7 @@ _run_fore() {
 }
 
 _run_inside() {
-  _run_cmd "$1" "arch-chroot /mnt $2"
+  _run_cmd "$1" "arch-chroot $MNT $2"
 }
 
 get_options $@
@@ -95,10 +97,10 @@ _run_fore "Initiating pacman keys" 'pacman-key --init'
 _run_fore "Initial pacman key setup" 'pacman-key --populate'
 
 # installing packages
-_run_fore "Installing packages" 'pacstrap -K /mnt base linux'
+_run_fore "Installing packages" "pacstrap -K $MNT base linux grub"
 
 # preparing fstab
-_run_cmd "making fstab" 'genfstab -U /mnt >> /mnt/etc/fstab'
+_run_cmd "making fstab" "genfstab -U $MNT >> /mnt/etc/fstab"
 
 # going inside
 _run_inside "ensuring new root" 'pwd'
@@ -107,7 +109,16 @@ _run_inside "setting time zone" 'ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/l
 #setting locale
 _run_inside "locate configuration" 'sed "/en_US.UTF-8/s/^#//" -i /etc/locale.gen'
 _run_inside "generating locale" 'locale-gen'
-_run_inside "configuring locale" 'echo "LANG=en_US.UTF-8" > /etc/locale.conf'
+_run_cmd "configuring locale" "echo 'LANG=en_US.UTF-8' > $MNT/etc/locale.conf"
 _run_inside "checking" 'ls -l /etc/locale.conf'
+_run_cmd "machine name" "echo '$NAME' > $MNT/etc/hostname"
+
+#configuring bootloader
+_run_cmd "prepare boot dir" "mkdir $MNT/boot/grub"
+_run_inside "configuring grub" "grub-mkconfig -o /boot/grub/grub.cfg"
+_run_inside "making bootable" "grub-install /dev/sda"
+
+#setting user
+_run_inside "making user" "useradd -m $USER"
 
 echo "See log in " $log
