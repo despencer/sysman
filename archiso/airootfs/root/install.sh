@@ -36,35 +36,7 @@ get_options() {
   fi
 }
 
-_start_log() {
- rm $log &> /dev/null
- date > $log
- hwclock -r >> $log
- timedatectl status >> $log
-}
-
-_run_cmd() {
- echo "================= $1" >> $log
- eval "$2" &>> $log
- if [ "$?" -ne 0 ]; then
-    echo "Fail $2 with $?"
-    echo "See log in " $log
-    exit 1
- else
-    echo "[+] $1"
- fi
-}
-
-_run_fore() {
- echo "================= $1" >> $log
- eval "$2"
- if [ "$?" -ne 0 ]; then
-    echo "Fail $2 with $?"
-    exit 1
- else
-    echo "[+] $1"
- fi
-}
+source environ.sh
 
 _run_inside() {
   _run_cmd "$1" "arch-chroot $MNT $2"
@@ -97,7 +69,7 @@ _run_fore "Initiating pacman keys" 'pacman-key --init'
 _run_fore "Initial pacman key setup" 'pacman-key --populate'
 
 # installing packages
-_run_fore "Installing packages" "pacstrap -K $MNT base linux grub"
+_run_fore "Installing packages" "pacstrap -K $MNT base linux grub sudo"
 
 # preparing fstab
 _run_cmd "making fstab" "genfstab -U $MNT >> /mnt/etc/fstab"
@@ -120,5 +92,10 @@ _run_inside "making bootable" "grub-install /dev/sda"
 
 #setting user
 _run_inside "making user" "useradd -m $USER"
+_run_cmd "setting password" "chpasswd -e -R $MNT < users.passwd"
+_run_cmd "setting sudo" "echo '$USER ALL=(ALL:ALL) NOPASSWD:ALL' > $MNT/etc/sudoers.d/$USER"
+
+_run_cmd "making install dir" "cp -r config $MNT/root/config"
+_run_cmd "making install scripts" "cp environ.sh $MNT/root/config/environ.sh"
 
 echo "See log in " $log
