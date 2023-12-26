@@ -50,7 +50,7 @@ _run_cmd "parameters $NAME $IP" 'echo name=$NAME ip=$IP'
 _run_cmd "pinging" 'ping -c 1 archlinux.org'
 
 # getting list of archlinux package servers
-_run_cmd "reflector" 'reflector --save /etc/pacman.d/mirrorlist'
+_run_cmd "reflector" 'reflector --protocol https --save /etc/pacman.d/mirrorlist'
 
 # creating disks
 sfdisk -d /dev/sda &> /dev/null
@@ -69,7 +69,7 @@ _run_fore "Initiating pacman keys" 'pacman-key --init'
 _run_fore "Initial pacman key setup" 'pacman-key --populate'
 
 # installing packages
-_run_fore "Installing packages" "pacstrap -K $MNT base linux grub sudo"
+_run_fore "Installing packages" "pacstrap -K $MNT base linux grub sudo reflector"
 
 # preparing fstab
 _run_cmd "making fstab" "genfstab -U $MNT >> /mnt/etc/fstab"
@@ -95,7 +95,13 @@ _run_inside "making user" "useradd -m $USER"
 _run_cmd "setting password" "chpasswd -e -R $MNT < users.passwd"
 _run_cmd "setting sudo" "echo '$USER ALL=(ALL:ALL) NOPASSWD:ALL' > $MNT/etc/sudoers.d/$USER"
 
-_run_cmd "making install dir" "cp -r config $MNT/root/config"
+#second stage installing scripts
+_run_cmd "making install dir" "mkdir $MNT/root/config"
+_run_cmd "copying install script" "cp config/configure.sh $MNT/root/config"
+_run_cmd "setting install script" "chmod u+x $MNT/root/config/configure.sh"
+_run_cmd "copying parameters" "cat config/params.sh | sed 's/{{IP}}/$IP/g' | sed 's/{{NAME}}/$NAME/g' > $MNT/root/config/params.sh"
 _run_cmd "making install scripts" "cp environ.sh $MNT/root/config/environ.sh"
+_run_cmd "network parameters"  "cat config/20-wired.network | sed 's/{{IP}}/$IP/g' > $MNT/root/config/20-wired.network"
 
+echo "run /root/config/configure.sh after reboot"
 echo "See log in " $log

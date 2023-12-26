@@ -13,7 +13,7 @@ _run_cmd() {
     echo "See log in " $log
     exit 1
  else
-    echo "[+] $1"
+    echo "[$NAME] $1"
  fi
 }
 
@@ -24,6 +24,6 @@ _run_fore() {
     echo "Fail $2 with $?"
     exit 1
  else
-    echo "[+] $1"
+    echo "[$NAME] $1"
  fi
 }
