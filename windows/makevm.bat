@@ -69,8 +69,10 @@ if %errorlevel% NEQ 0 (
 
 echo [+] creating vm
 "%vboxmanage%" createvm --name %vm_name% --ostype ArchLinux_64 --register > nul
-echo [+] configuring basic vm settings
+echo [+] configuring basic vm settings 1
 "%vboxmanage%" modifyvm %vm_name% --memory %vm_memory% --vram 64 --ioapic on --acpi on --chipset ich9 --largepages on --usb %vm_usb%> nul
+echo [+] configuring basic vm settings 2
+"%vboxmanage%" modifyvm %vm_name% --rtcuseutc on > nul
 echo [+] configuring network
 "%vboxmanage%" modifyvm %vm_name% --nictype1 82540EM --nic1 bridged --bridgeadapter1 "%vboxnetadapter%" > nul
 echo [+] configuring booting
