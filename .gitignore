@@ -1,3 +1,4 @@
 # variable data
 var/
 users.passwd
+user.config/
