@@ -1,0 +1,8 @@
+[Unit]
+Description=Automount unit for mobihome
+
+[Automount]
+Where=/mnt/mobihome
+
+[Install]
+WantedBy=remote-fs.target

@@ -102,6 +102,8 @@ _run_cmd "setting install script" "chmod u+x $MNT/root/config/configure.sh"
 _run_cmd "copying parameters" "cat config/params.sh | sed 's/{{IP}}/$IP/g' | sed 's/{{NAME}}/$NAME/g' > $MNT/root/config/params.sh"
 _run_cmd "making install scripts" "cp environ.sh $MNT/root/config/environ.sh"
 _run_cmd "network parameters"  "cat config/20-wired.network | sed 's/{{IP}}/$IP/g' > $MNT/root/config/20-wired.network"
+_run_cmd "mount parameters"  "cp config/mnt-mobihome.mount $MNT/root/config/mnt-mobihome.mount"
+_run_cmd "automount parameters"  "cp config/mnt-mobihome.automount $MNT/root/config/mnt-mobihome.automount"
 _run_cmd "user parameters" "cp -r user.config $MNT/root/user.config"
 
 echo "run /root/config/configure.sh after reboot"

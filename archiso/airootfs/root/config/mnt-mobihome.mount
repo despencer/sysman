@@ -1,0 +1,8 @@
+[Unit]
+Description=Mount point for mobihome
+
+[Mount]
+What=mobihome
+Where=/mnt/mobihome
+Type=vboxsf
+Options=uid=master,gid=master
