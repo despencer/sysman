@@ -1,4 +1,5 @@
 # variable data
+*.log
 var/
 users.passwd
 user.config/
