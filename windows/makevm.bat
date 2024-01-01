@@ -73,6 +73,10 @@ echo [+] configuring basic vm settings 1
 "%vboxmanage%" modifyvm %vm_name% --memory %vm_memory% --vram 64 --ioapic on --acpi on --chipset ich9 --largepages on --usb %vm_usb%> nul
 echo [+] configuring basic vm settings 2
 "%vboxmanage%" modifyvm %vm_name% --rtcuseutc on --mouse usbtablet > nul
+if "%vm_usb%"=="on" (
+echo [+] configuring usb
+"%vboxmanage%" usbfilter add 0 --target %vm_name% --name "Filter1" --active yes > nul
+)
 echo [+] configuring network
 "%vboxmanage%" modifyvm %vm_name% --nictype1 82540EM --nic1 bridged --bridgeadapter1 "%vboxnetadapter%" > nul
 echo [+] configuring booting
