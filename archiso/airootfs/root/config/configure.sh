@@ -11,7 +11,7 @@ _run_cmd "enabling resolving" "systemctl enable systemd-resolved.service"
 _run_cmd "starting resolving" "systemctl start systemd-resolved.service"
 _run_cmd "disabling i2c_piix4" "echo 'blacklist i2c_piix4' >> /etc/modprobe.d/modprobe.conf"
 _run_cmd "reconfiguring mkint" "mkinitcpio -p linux"
-_run_fore "getting packages" "pacman -S git mc virtualbox-guest-utils terminus-font --noconfirm"
+_run_fore "getting packages" "pacman -S git mc virtualbox-guest-utils terminus-font xmlstarlet --noconfirm"
 _run_cmd "enabling vbox" "systemctl enable vboxservice.service"
 _run_cmd "starting vbox" "systemctl start vboxservice.service"
 _run_cmd "configuring grub video" 'sed "/GRUB_CMDLINE_LINUX_DEFAULT/{s/quiet/quiet video=1920x1080/}" -i /etc/default/grub'
