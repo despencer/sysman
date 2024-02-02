@@ -1,3 +1,5 @@
+USER='master'
+
 _start_log() {
  rm $log &> /dev/null
  date > $log
