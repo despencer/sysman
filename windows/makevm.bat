@@ -28,10 +28,10 @@ REM checking parameters
 REM
 if "%1"=="" (
 echo Please provide parameters:
-echo   machine name
-echo   --hdd size in Gb [optional]
-echo   --memory size in Mb [optional]
-echo   --usb on/off [optional]
+echo   machine-name
+echo   --hdd size in Gb [optional] default 50
+echo   --memory size in Mb [optional] default 4096
+echo   --usb on/off [optional] default off
 exit /b 2
 )
 
@@ -44,12 +44,14 @@ SET vm_ostype=ArchLinux_64
 SET vm_isopath="C:\home\distribs\linux\archlinux.iso"
 SET vm_screenres = "1920x1080x32"
 SET vm_usb=off
+goto opstest
 :getops
 if /I %~1 == --hdd (set vm_hdd=%2000& shift) else (
  if /I %~1 == --memory (set vm_memory=%2& shift) else (
   if /I %~1 == --usb (set vm_usb=%2& shift) else (
  echo Unknown parameter %1& exit /b 2)))
 shift
+:opstest
 if not (%1)==() goto getops
 
 echo Making %vm_name%
@@ -83,6 +85,7 @@ echo [+] configuring booting
 "%vboxmanage%" modifyvm %vm_name% --boot1 disk --boot2 dvd --boot3 none --boot4 none > nul
 echo [+] configuring screen
 "%vboxmanage%" setextradata %vm_name% CustomVideoMode1 %vm_screenres% > nul
+"%vboxmanage%" setextradata %vm_name% "GUI/MiniToolBarAlignment" "Top"> nul
 echo [+] creating hdd
 "%vboxmanage%" createhd --filename %vboxpath%\%vm_name%\%vm_name%.vdi -size %vm_hdd% > nul
 echo [+] creating SATA
