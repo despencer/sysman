@@ -3,7 +3,7 @@
 ## Preparation of installation media
 
 The installation process is based on **archiso** package. It prepares the ISO image with bootable ArchLinux live environment
-and minimal set of utilites for creating new ArchLinux site. It is highly configurable.
+and minimal set of utilites for creating new ArchLinux site. It is highly configurable. This package also contains files for bootable iso image.
 
 In order to automatically create default user with the password and user settings (for *git*, *mc*, etc) one has to provide
 these settings. This data is personal and could not be shared via github.
