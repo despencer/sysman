@@ -10,6 +10,13 @@ def getnode(hive, path, node=None):
         node = hive.node_get_child(node, p)
     return node
 
+def getvalue(hive, key):
+    decoder = { 1: lambda h,k: h.value_string(k), 3: lambda h,k: h.value_value(k)[1],  4:lambda h,k: h.value_dword(k) }
+    valtype = hive.value_type(key)[0]
+    if valtype in decoder:
+        return decoder[valtype](hive, key)
+    return str(valtype) + ': Unknown registry value type'
+
 class Column:
     def __init__(self, name, width):
         self.name = name
@@ -30,6 +37,20 @@ class Table:
 
     @classmethod
     def load(cls, hive, path, columns, conversion={}):
+        table = cls.make(columns)
+        table.append(hive, path, list(columns.keys()), conversion)
+        return table
+
+    @classmethod
+    def loadkeys(cls, hive, path):
+        table = cls.make( {'Name':30, 'Value':80} )
+        node = getnode(hive, path)
+        for v in hive.node_values(node):
+            table.data.append( {'Name':hive.value_key(v), 'Value':getvalue(hive, v)} )
+        return table
+
+    @classmethod
+    def make(cls, columns):
         table = cls()
         for cname, cwidth in columns.items():
             if isinstance(cwidth, Column):
@@ -37,7 +58,6 @@ class Table:
                 cwidth.name = cname
             else:
                 table.columns[cname] = Column(cname, cwidth)
-        table.append(hive, path, list(columns.keys()), conversion)
         return table
 
     def append(self, hive, path, columns, conversion={}):
@@ -76,6 +96,12 @@ class Table:
             ret += '\n'
         return ret
 
+def printheader(header):
+    outline = ''.ljust(80, '=')
+    print('\n'+outline)
+    print('   ', header)
+    print(outline)
+
 def main():
     import argparse
 
@@ -83,12 +109,16 @@ def main():
     parser.add_argument("softfile", type=str, help="Path to the Software registry hive")
     args = parser.parse_args()
     softhive = hivex.Hivex(args.softfile)
+    sysinfo = Table.loadkeys(softhive, 'Microsoft\\Windows NT\\CurrentVersion')
     installed = Table.load(softhive, 'Microsoft\\Windows\\CurrentVersion\\Uninstall',
              {'InstallDate': Column.date(), 'DisplayName': 80, 'DisplayVersion':20, 'Publisher':30},
              conversion={'InstallDate':date.fromisoformat} )
     installed.append(softhive, 'WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
              ['InstallDate', 'DisplayName', 'DisplayVersion', 'Publisher'], conversion={'InstallDate':date.fromisoformat} )
     installed.sort('InstallDate')
+    printheader('System Info')
+    print(sysinfo)
+    printheader('Installed Software')
     print(installed)
 
 if __name__ == "__main__":
