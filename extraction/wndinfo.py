@@ -3,6 +3,36 @@
 from datetime import date
 import hivex
 
+
+def decode_productkey(rawbuf):
+    idpart = bytearray(rawbuf)
+    isWin8 = (idpart[14] // 6) & 1
+    if isWin8:
+        idpart[14] = (idpart[14] & 0xF7) | ((isWin8 & 2) * 4)
+
+    charStore = "BCDFGHJKMPQRTVWXY2346789"
+    productkey = ""
+    lastC = 0    # isWin8 support
+
+    for i in range(25):
+        c = 0
+        for j in range(14, -1, -1):
+            c = (c << 8) ^ idpart[j]
+            idpart[j] = c // 24
+            c %= 24
+        productkey = charStore[c] + productkey
+        lastC = c
+
+    if isWin8:
+        insert = "N"
+        if lastC == 0:
+            productkey = insert + productkey
+        else:
+            keypart1 = productkey[1:1+lastC]
+            productkey = productkey[1:].replace(keypart1, keypart1 + insert)
+
+    return '-'.join([productkey[i * 5:i * 5 + 5] for i in range(5)])
+
 def getnode(hive, path, node=None):
     if node == None:
         node = hive.root()
@@ -102,6 +132,12 @@ def printheader(header):
     print('   ', header)
     print(outline)
 
+def decode_sysinfo(sysinfo):
+    prodid = next(filter(lambda x: x['Name'] == 'DigitalProductId', sysinfo.data))['Value']
+    prodid4 = next(filter(lambda x: x['Name'] == 'DigitalProductId4', sysinfo.data))['Value']
+    sysinfo.data.append({'Name':'DecodedProductId', 'Value':decode_productkey(prodid[52:52+15]) })
+    sysinfo.data.append({'Name':'DecodedProductId4', 'Value':decode_productkey(prodid4[808:808+15]) })
+
 def main():
     import argparse
 
@@ -109,7 +145,10 @@ def main():
     parser.add_argument("softfile", type=str, help="Path to the Software registry hive")
     args = parser.parse_args()
     softhive = hivex.Hivex(args.softfile)
+
     sysinfo = Table.loadkeys(softhive, 'Microsoft\\Windows NT\\CurrentVersion')
+    decode_sysinfo(sysinfo)
+
     installed = Table.load(softhive, 'Microsoft\\Windows\\CurrentVersion\\Uninstall',
              {'InstallDate': Column.date(), 'DisplayName': 80, 'DisplayVersion':20, 'Publisher':30},
              conversion={'InstallDate':date.fromisoformat} )
