@@ -3,7 +3,6 @@
 from datetime import date
 import hivex
 
-
 def decode_productkey(rawbuf):
     idpart = bytearray(rawbuf)
     isWin8 = (idpart[14] // 6) & 1
