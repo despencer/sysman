@@ -22,8 +22,10 @@ from [non-free debian repository](https://cdimage.debian.org/cdimage/unofficial/
 
 Now we have three isos (Arch Linux Live USB and 2 Debians). We should put it all on a removable media (Flash USB) and made it bootable.
 The best way is to plain copy from Arch Linux Live USB to the flash:
-`lsblk # get a list of block devices`
-`sudo sp archlinux_iso /dev/sdX  # sdX - a reference to USB flash`
+```
+lsblk # get a list of block devices
+sudo sp archlinux_iso /dev/sdX  # sdX - a reference to USB flash
+```
 
 After this we get magically two partitions on the flash and the rest of the flash is unpartitioned. We can create a third partition (`fdisk`),
 format is with ext4 (`mkfs.ext4`) and copy there two Debian isos.
@@ -79,7 +81,8 @@ mount -o loop $MNT/usb/debian_firmware $MNT/iso2
 
 Now everything is ready for create new system. Usually this part is performed by debian installer, but we will make it ourselves.
 
-`# define a Debian release
+```
+# define a Debian release
 RELEASE='bullseye'
 
 # creates baseline file structure and installs apt (package management system)
@@ -87,7 +90,8 @@ debootstrap --arch amd64 $RELEASE $DEBIAN file:$MNT/iso1
 
 # sets the reference to the temporary package container:
 echo "deb file:$MNT/iso/ $RELEASE main contrib > $MNT/etc/apt/sources.list
-echo "deb file:$MNT/iso2/ $RELEASE non-free >> $MNT/etc/apt/sources.list`
+echo "deb file:$MNT/iso2/ $RELEASE non-free >> $MNT/etc/apt/sources.list
+```
 
 ## Preparing system for a first boot
 
@@ -96,7 +100,8 @@ such directories. If you prefer **chroot** you have to do it yourself.
 
 The booting is performed via BIOS. The command `check sys/firmware/efi` could help in identification that UEFI was used.
 
-`# Dive inside new installation
+```
+# Dive inside new installation
 arch-chroot $DEBIAN
 
 # define constants
@@ -143,18 +148,21 @@ apt-get install linux-image-amd64 grub-pc
 
 # configure GRUB for booting and install it into a special partition
 grub-mkconfig -o /boot/grub/grub.cfg
-grub-install /dev/sdX`
+grub-install /dev/sdX
+```
 
 Now that's all and we can boot from the new installation, set up network and change package source list (file `/etc/apt/sources.list`)
 to standard values:
 
-`deb https://deb.debian.org/debian $RELEASE main contrib non-free
+```
+deb https://deb.debian.org/debian $RELEASE main contrib non-free
 deb-src https://deb.debian.org/debian $RELEASE main contrib non-free
 
 deb https://security.debian.org/debian-security $RELEASE-security main contrib non-free
 deb-src https://security.debian.org/debian-security $RELEASE-security main contrib non-free
 
 deb https://deb.debian.org/debian $RELEASE-updates main contrib non-free
-deb-src https://deb.debian.org/debian $RELEASE-updates main contrib non-free`
+deb-src https://deb.debian.org/debian $RELEASE-updates main contrib non-free
+```
 
 Again, command `apt-cache policy` after `sudo apt-get update` should confirm that everything is ok.

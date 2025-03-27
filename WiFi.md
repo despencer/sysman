@@ -21,7 +21,8 @@ Below there are guidelines how to do it.
 
 These packages are required:
 
-`# network tools including ifconfig and ip
+```
+# network tools including ifconfig and ip
 apt-get install net-tools
 
 # lspci and lsusb for viewing what's connected
@@ -29,15 +30,18 @@ apt-get install pciutils
 apt-get install usbutils
 
 # realtek firmware drivers
-apt-get install firmware-realtek`
+apt-get install firmware-realtek
+```
 
 ## Checking
-`# The USB WiFi adapter should be in the list
+```
+# The USB WiFi adapter should be in the list
 sudo lsusb
 
 # lists all interfaces
 # WiFi interface should be in the list as wlxMAC where MAC - the MAC address
-ip link show`
+ip link show
+```
 
 The interface is not connected out of the box because accessing WiFi network requires SSID identification and password provision. However, we
 can test the connection in manual mode.
@@ -46,13 +50,17 @@ You have to stop *wpa_supplicant* systemd service. With it up and running manual
 and see the list of running services you will see it healthy running again. There is no miracle: *NetworkManager* service like a watchdog
 practically immediatedly restarts the *wpa_supplicant*. So the right commands would be stopping both services:
 
-`sudo systemctl stop NetworkManager
-sudo systemctl stop wpa_supplicant`
+```
+sudo systemctl stop NetworkManager
+sudo systemctl stop wpa_supplicant
+```
 
 And then we can run *wpa-cli* safely, see the available networks:
-`sudo wpa-cli
+```
+sudo wpa-cli
 >scan
->scan_results`
+>scan_results
+```
 
 And finally connect:
 `sudo nmcli device wifi connect $SSID password $WIFIPASSWD`
@@ -63,16 +71,20 @@ If everything is ok and you successfully connected to a WiFi access point, ypu h
 `wpa_passphrase $SSID $WIFIPASSWD`
 
 File `/etc/network/interfaces` is configured to include all files from `interfaces.d`:
-`source /etc/network/interfaces.d/*`
+```
+source /etc/network/interfaces.d/*
+```
 
 So I created a file named by my WiFi SSID in the `/etc/network/interfaces.d/` directory and put there the following:
 
-`allow-hotplug wlx$MAC
+``
+allow-hotplug wlx$MAC
 iface wlx$MAC inet static
     wpa-ssid $SSID
     wpa-psk $PASSCODE
     address 192.168.0.$IP/24
-    gateway 192.168.0.1`
+    gateway 192.168.0.1
+```
 
 And this configuration is activated at system startup.
 
