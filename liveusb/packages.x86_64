@@ -126,3 +126,10 @@ wvdial
 xfsprogs
 xl2tpd
 zsh
+wimlib
+# for hardware and memory info
+i2c-tools
+hwinfo
+
+# for debian bootstrap
+debootstrap
