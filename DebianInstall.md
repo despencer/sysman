@@ -41,7 +41,8 @@ you have create partitions aligned on 2048 sectors. For boot partition, 1 MiB is
 
 So, after booting from ArchLinux LiveUSB we do partitioning and formatting:
 
-`# Partition the disk (sdX - usually sda)
+```
+# Partition the disk (sdX - usually sda)
 # For gpt
 fdisk /dev/sdX
 
@@ -50,11 +51,13 @@ mkfs.ext4 /dev/sdX1
 
 # make swap and enable it
 mkswap /dev/sdX2
-swapon /dev/sdX2`
+swapon /dev/sdX2
+```
 
 Then we need to get access to Debian installation media
 
-`MNT='/mnt'            # define a mount directory
+```
+MNT='/mnt'            # define a mount directory
 DEBIAN='mnt/debian'    # define a directory for new Debian system
 
 # in Live USB the filesystem is not persistent and we should create mount points for access to the new system disk and debian iso
@@ -71,7 +74,8 @@ mount /dev/sdY3 $MNT/usb
 
 # mount debian installation disks
 mount -o loop $MNT/usb/debian_iso $MNT/iso
-mount -o loop $MNT/usb/debian_firmware $MNT/iso2`
+mount -o loop $MNT/usb/debian_firmware $MNT/iso2
+```
 
 Now everything is ready for create new system. Usually this part is performed by debian installer, but we will make it ourselves.
 
