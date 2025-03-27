@@ -95,7 +95,7 @@ echo "deb file:$MNT/iso2/ $RELEASE non-free >> $MNT/etc/apt/sources.list
 
 ## Preparing system for a first boot
 
-Let's dive into new installation. An **arch-chroot* is a wrapper for the traditional **chroot** and it also binds */dev*, */proc* and other
+Let's dive into new installation. An **arch-chroot** is a wrapper for the traditional **chroot** and it also binds */dev*, */proc* and other
 such directories. If you prefer **chroot** you have to do it yourself.
 
 The booting is performed via BIOS. The command `check sys/firmware/efi` could help in identification that UEFI was used.

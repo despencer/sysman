@@ -77,7 +77,7 @@ source /etc/network/interfaces.d/*
 
 So I created a file named by my WiFi SSID in the `/etc/network/interfaces.d/` directory and put there the following:
 
-``
+```
 allow-hotplug wlx$MAC
 iface wlx$MAC inet static
     wpa-ssid $SSID
