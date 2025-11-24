@@ -166,3 +166,15 @@ deb-src https://deb.debian.org/debian $RELEASE-updates main contrib non-free
 ```
 
 Again, command `apt-cache policy` after `sudo apt-get update` should confirm that everything is ok.
+
+Additional packages:
+- lm-sensors (for mobo temperature)
+- smartmontools (for smartctl)
+- hdparm (for testing HDD performance)
+- acl (for access control lists)
+
+In order to eliminate message `watchdog: watchdog0: watchdog did not stop!` during reboot, set
+```
+RebootWatchdogSec=0
+```
+in systemd configuration file `/etc/systemd/system.conf`
