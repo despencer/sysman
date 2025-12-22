@@ -5,6 +5,9 @@ NAME=''
 OSTYPE='ArchLinux_64'
 MEMORY='8196'
 HDD='70000'
+NETADAPTER=''
+VMFOLDER=''
+vboxmanage=VBoxManage
 
 usage() {
  echo "Usage: VBoxCreate name --ostype ostype --hdd sizeGiB --memory sizeMiB "
@@ -44,11 +47,60 @@ get_options() {
   NAME=$1
 }
 
+get_ifs() {
+ NETADAPTER=$($vboxmanage list bridgedifs | grep Name | head -n 1 | awk -F':' '{print $2}')
+ if [ "$NETADAPTER" == '' ]; then
+    echo "Network adapter not found"
+    exit 1
+ fi
+}
+
+get_folder() {
+ VMFOLDER=$($vboxmanage list systemproperties | grep 'machine folder' | awk -F':' '{print $2}')
+ if [ "$VMFOLDER" == '' ]; then
+    echo "VM Folder not found"
+    exit 1
+ fi
+}
+
+check_existance() {
+$vboxmanage showvminfo $NAME 2> /dev/null >/dev/null
+if [ "$?" -eq 0 ]; then
+   echo "$NAME already exists"
+   echo to delete: vboxmanage unregistervm $NAME --delete
+   exit 1
+fi
+}
+
 get_options $@
+get_ifs
+get_folder
 echo "About to create virtual machine $NAME"
 echo "OS type $OSTYPE"
 echo "Memory $MEMORY MiB"
 echo "HDD $HDD Gib"
+echo "NETWORK $NETADAPTER"
+echo "VMFOLDER $VMFOLDER"
 echo "Press ENTER to continue"
 read
 
+check_existance
+
+echo [+] creating vm
+$vboxmanage createvm --name $NAME --ostype $OSTYPE --register
+echo [+] configuring basic vm settings 1
+$vboxmanage modifyvm $NAME --memory $MEMORY --vram 64 --ioapic on --acpi on --chipset ich9 --largepages on
+echo [+] configuring basic vm settings 2
+$vboxmanage modifyvm $NAME --rtcuseutc on --mouse usbtablet
+echo [+] configuring network
+$vboxmanage modifyvm $NAME --nictype1 82540EM --nic1 bridged --bridgeadapter1 $NETADAPTER
+echo [+] configuring booting
+$vboxmanage modifyvm $NAME --boot1 disk --boot2 dvd --boot3 none --boot4 none
+echo [+] creating hdd
+$vboxmanage createhd --filename $VMFOLDER/$NAME/$NAME.vdi -size $HDD
+echo [+] creating SATA
+$vboxmanage storagectl $NAME --name SATA --add sata --controller IntelAHCI --portcount 4
+echo [+] attaching hdd
+$vboxmanage storageattach $NAME --storagectl SATA --port 0 --device 0 --type hdd --medium $VMFOLDER/$NAME/$NAME.vdi
+echo [+] adding share
+$vboxmanage sharedfolder add $NAME --name vmhome --hostpath ~/vhome
