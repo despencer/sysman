@@ -7,11 +7,12 @@ MEMORY='8196'
 HDD='70000'
 NETADAPTER=''
 VMFOLDER=''
+SNAPSHOTS=''
 vboxmanage=VBoxManage
 
 usage() {
  echo "Usage: VBoxCreate name --ostype ostype --hdd sizeGiB --memory sizeMiB "
- echo "    ostype: ArchLinux_64 default"
+ echo "    ostype: ArchLinux_64 default, Windows11_64"
  exit 1
 }
 
@@ -61,6 +62,7 @@ get_folder() {
     echo "VM Folder not found"
     exit 1
  fi
+ SNAPSHOTS="$HOME/vhome/snapshots"
 }
 
 check_existance() {
@@ -81,6 +83,7 @@ echo "Memory $MEMORY MiB"
 echo "HDD $HDD Gib"
 echo "NETWORK $NETADAPTER"
 echo "VMFOLDER $VMFOLDER"
+echo "SNAPSHOTS $SNAPSHOTS"
 echo "Press ENTER to continue"
 read
 
@@ -91,7 +94,7 @@ $vboxmanage createvm --name $NAME --ostype $OSTYPE --register
 echo [+] configuring basic vm settings 1
 $vboxmanage modifyvm $NAME --memory $MEMORY --vram 64 --ioapic on --acpi on --chipset ich9 --largepages on
 echo [+] configuring basic vm settings 2
-$vboxmanage modifyvm $NAME --rtcuseutc on --mouse usbtablet
+$vboxmanage modifyvm $NAME --rtcuseutc on
 echo [+] configuring network
 $vboxmanage modifyvm $NAME --nictype1 82540EM --nic1 bridged --bridgeadapter1 $NETADAPTER
 echo [+] configuring booting
@@ -104,3 +107,14 @@ echo [+] attaching hdd
 $vboxmanage storageattach $NAME --storagectl SATA --port 0 --device 0 --type hdd --medium $VMFOLDER/$NAME/$NAME.vdi
 echo [+] adding share
 $vboxmanage sharedfolder add $NAME --name vmhome --hostpath ~/vhome
+echo [+] setting snapshots
+$vboxmanage modifyvm $NAME --snapshot-folder=$SNAPSHOTS/$NAME
+if [[ "$OSTYPE" == *"Windows1"* ]]; then
+echo [+] configuring Windows
+$vboxmanage modifyvm $NAME --cpus=2 --vram 256
+$vboxmanage modifyvm $NAME --mouse ps2 --graphicscontroller=vboxsvga
+$vboxmanage storageattach $NAME --storagectl SATA --port 3 --device 0 --type dvddrive --medium /usr/lib/virtualbox/additions/VBoxGuestAdditions.iso
+else
+echo [+] configuring non-Windows
+$vboxmanage modifyvm $NAME --mouse usbtablet 
+fi
