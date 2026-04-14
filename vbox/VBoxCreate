@@ -106,14 +106,14 @@ $vboxmanage storagectl $NAME --name SATA --add sata --controller IntelAHCI --por
 echo [+] attaching hdd
 $vboxmanage storageattach $NAME --storagectl SATA --port 0 --device 0 --type hdd --medium $VMFOLDER/$NAME/$NAME.vdi
 echo [+] adding share
-$vboxmanage sharedfolder add $NAME --name vmhome --hostpath ~/vhome
+$vboxmanage sharedfolder add $NAME --name vmhome --hostpath ~/vhome/home
 echo [+] setting snapshots
 $vboxmanage modifyvm $NAME --snapshot-folder=$SNAPSHOTS/$NAME
 if [[ "$OSTYPE" == *"Windows1"* ]]; then
 echo [+] configuring Windows
 $vboxmanage modifyvm $NAME --cpus=2 --vram 256
 $vboxmanage modifyvm $NAME --mouse ps2 --graphicscontroller=vboxsvga
-$vboxmanage storageattach $NAME --storagectl SATA --port 3 --device 0 --type dvddrive --medium /usr/lib/virtualbox/additions/VBoxGuestAdditions.iso
+$vboxmanage storageattach $NAME --storagectl SATA --port 3 --device 0 --type dvddrive --medium ~/vhome/home/distribs/Windows11.iso
 else
 echo [+] configuring non-Windows
 $vboxmanage modifyvm $NAME --mouse usbtablet 
