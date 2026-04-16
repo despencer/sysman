@@ -46,4 +46,12 @@ Set a usually not-used key `Menu key` as `Host key` for switching from guest to 
 Set guest management toolbar at the top of the window:
 ```VBoxManage setextradata global "GUI/MiniToolBarAlignment" "Top"```
 
+## Access from VirtualBox to a raw partitions
 
+Sometimes a virtual machine has to access a lot of raw data. For example, your run a database inside virtualbox. One solution is to make a dedicated
+partition in a host system and provide it as a raw partition to a virtualbox. Beforehands, a `vbox` user should have access to raw disks:
+```sudo usermod -a -G disk vbox```
+and then create a VMDK proxy disk:
+```vboxmanage createmedium disk --filename <path.vmdk> --format=VMDK --variant RawDisk --property RawDrive=/dev/sdXX```
+and attach it a usual way:
+```vboxmanage storageattach <vmname> --storagectl SATA --port 1 --device 0 --type hdd --medium <path.vmdk>
