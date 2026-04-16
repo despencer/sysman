@@ -1,0 +1,6 @@
+if [ "$2" != '' ]; then
+vboxmanage storageattach $1 --storagectl SATA --port 3 --device 0 --type dvddrive --medium $2
+else
+echo "Usage: VBoxISO vmname filename"
+echo "   for eject disk use 'emptydrive' "
+fi

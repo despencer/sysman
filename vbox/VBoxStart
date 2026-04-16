@@ -1,0 +1,25 @@
+#!/bin/sh
+# VBoxStart - starting virtual machines
+
+if [ -z "`ps | grep startx`" ]
+then
+echo "Starting X"
+startx 2>/dev/null
+fi
+
+runvm()
+{
+ if [ -z "`VBoxManage list runningvms | grep $1`" ]
+ then
+ echo "Starting $1"
+# DISPLAY=":0" VBoxManage startvm $1
+ VBoxManage startvm $1
+ fi
+}
+
+until [ -z "$1" ]
+do
+runvm $1
+shift
+done
+
