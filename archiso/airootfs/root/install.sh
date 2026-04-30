@@ -67,6 +67,8 @@ _run_cmd "enbling swap" 'swapon /dev/sda1'
 # initialiing pacman
 _run_fore "Initiating pacman keys" 'pacman-key --init'
 _run_fore "Initial pacman key setup" 'pacman-key --populate'
+_run_fore "Updating pacman database and keys" 'pacman -Sy'
+_run_fore "Updating pgp keys" 'pacman -S archlinux-keyring --noconfirm'
 
 # installing packages
 _run_fore "Installing packages" "pacstrap -K $MNT base linux grub sudo reflector"
@@ -102,9 +104,11 @@ _run_cmd "setting install script" "chmod u+x $MNT/root/config/configure.sh"
 _run_cmd "copying parameters" "cat config/params.sh | sed 's/{{IP}}/$IP/g' | sed 's/{{NAME}}/$NAME/g' > $MNT/root/config/params.sh"
 _run_cmd "making install scripts" "cp environ.sh $MNT/root/config/environ.sh"
 _run_cmd "network parameters"  "cat config/20-wired.network | sed 's/{{IP}}/$IP/g' > $MNT/root/config/20-wired.network"
+_run_cmd "ssh parameters"  "cp config/99-local.conf $MNT/root/config/99-local.conf"
+_run_cmd "ssh key"  "cp config/trakey.pub $MNT/root/config/trakey.pub"
+_run_cmd "user parameters" "cp -r user.config $MNT/root/user.config"
 _run_cmd "mount parameters"  "cp config/mnt-mobihome.mount $MNT/root/config/mnt-mobihome.mount"
 _run_cmd "automount parameters"  "cp config/mnt-mobihome.automount $MNT/root/config/mnt-mobihome.automount"
-_run_cmd "user parameters" "cp -r user.config $MNT/root/user.config"
 
 echo "run /root/config/configure.sh after reboot"
 echo "See log in " $log

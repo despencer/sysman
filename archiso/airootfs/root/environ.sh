@@ -5,6 +5,14 @@ _start_log() {
  timedatectl status >> $log
 }
 
+_log_section() {
+ echo "[$NAME]---- $1"
+ echo " " >> $log
+ echo "=================================" >> $log
+ echo "=   $1" >> $log
+ echo "=================================" >> $log
+}
+
 _run_cmd() {
  echo "================= $1" >> $log
  eval "$2" &>> $log
