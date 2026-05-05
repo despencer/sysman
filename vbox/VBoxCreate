@@ -8,6 +8,7 @@ HDD='70000'
 NETADAPTER=''
 VMFOLDER=''
 SNAPSHOTS=''
+SCREEN='1920x1200'
 vboxmanage=VBoxManage
 
 usage() {
@@ -118,4 +119,5 @@ else
 echo [+] configuring non-Windows
 $vboxmanage modifyvm $NAME --mouse usbtablet --graphicscontroller=vmsvga
 $vboxmanage storageattach $NAME --storagectl SATA --port 3 --device 0 --type dvddrive --medium ~/vhome/home/distribs/linux/archlinux.iso
+$vboxmanage guestproperty set $NAME "/Custom/ScreenSize" "$SCREEN"
 fi
