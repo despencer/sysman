@@ -1,0 +1,8 @@
+[Unit]
+Description=Mount point for {{FOLDER}}
+
+[Mount]
+What={{FOLDER}}
+Where=/mnt/{{FOLDER}}
+Type=vboxsf
+Options=uid=master,gid=master

@@ -1,12 +1,23 @@
 USER='master'
 
 _start_log() {
+ _check_ssh $TARGET
  if [ "$TARGET" != '' ]; then
    rm $log &> /dev/null
    date > $log
  else
   echo "Usage: $0 target"
   exit 1
+ fi
+}
+
+_check_ssh() {
+ ping -c 1 -w 1 "$TARGET" &> /dev/null
+ if [ "$?" -ne 0 ]; then
+   echo "$TARGET is unavailable"
+   exit 1
+ else
+   echo "$TARGET is up"
  fi
 }
 
