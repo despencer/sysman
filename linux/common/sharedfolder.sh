@@ -7,7 +7,9 @@ CPATH=$(dirname $(realpath "$0"))
 source $CPATH/../environ.sh
 
 _start_log
-vboxmanage showvminfo $1 --machinereadable | grep "SharedFolderNameMachineMapping" | cut -d'"' -f 2 | while IFS= read -r FOLDER; do
+folders=$(vboxmanage showvminfo $1 --machinereadable | grep "SharedFolderNameMachineMapping" | cut -d'"' -f 2)
+for FOLDER in $folders
+do
   echo "Doing $FOLDER"
   ssh $TARGET "ls /mnt/$FOLDER" &> /dev/null
   if [ "$?" -ne 0 ]; then
