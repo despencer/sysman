@@ -1,0 +1,8 @@
+[Unit]
+Description=Automount unit for {{FOLDER}}
+
+[Automount]
+Where=/mnt/{{FOLDER}}
+
+[Install]
+WantedBy=remote-fs.target
