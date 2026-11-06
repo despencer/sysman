@@ -16,5 +16,4 @@ shift-up=\\e[1\;2A
 shift-down=\\e[1\;2B
 ctrl-right=\\e[1\;5C
 ctrl-left=\\e[1\;5D
-
 ```
